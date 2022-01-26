@@ -76,16 +76,17 @@ int main(int argc, char *argv[]) {
            if_msghdr2_s.ifm_index, if_msghdr2_s.ifm_type,
            if_msghdr2_s.ifm_flags);*/
 
-    if(ifindex != if_msghdr2_s.ifm_index ||
-       RTM_IFINFO2 != if_msghdr2_s.ifm_type ||
-       (if_msghdr2_s.ifm_flags & IFF_LOOPBACK)) {
-  
+    if (RTM_IFINFO2 != if_msghdr2_s.ifm_type ||
+        ifindex != if_msghdr2_s.ifm_index ||
+        (~if_msghdr2_s.ifm_flags & IFF_UP) ||
+        (if_msghdr2_s.ifm_flags & IFF_LOOPBACK)) {
+
       continue;
     }
 
     printf("%llu %llu\n",
-           if_msghdr2_s.ifm_data.ifi_obytes,
-           if_msghdr2_s.ifm_data.ifi_ibytes);
+           (unsigned long long)if_msghdr2_s.ifm_data.ifi_obytes,
+           (unsigned long long)if_msghdr2_s.ifm_data.ifi_ibytes);
 
     free(records);
 
