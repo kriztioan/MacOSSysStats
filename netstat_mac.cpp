@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
           std::vector<struct sample> smpl;
           smpl.reserve(info.size());
           for (auto &[_, proc] : info) {
-            if (proc.rx2 <= proc.rx1 || proc.tx2 <= proc.tx1)
+            if (proc.rx2 <= proc.rx1 && proc.tx2 <= proc.tx1)
               continue;
             float dt = static_cast<float>((proc.t2 - proc.t1)) /
                        1000000000.0f; // seconds
