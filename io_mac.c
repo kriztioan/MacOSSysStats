@@ -19,9 +19,7 @@
 
 int main() {
 
-  mach_port_t master_port;
-
-  IOMasterPort(bootstrap_port, &master_port);
+  mach_port_t master_port = kIOMainPortDefault;
 
   CFMutableDictionaryRef match = IOServiceMatching("IOMedia");
 
