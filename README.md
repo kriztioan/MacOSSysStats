@@ -4,6 +4,8 @@
 
 Here is a collection of small, highly efficient C/C++/Obj-C programs for gathering MacOS system stats. These programs are particularly useful when combined with software like [Übersicht](https://tracesof.net/uebersicht/), [GeekTool](https://www.tynsoe.org/geektool/), [NerdTool](http://mutablecode.com/apps/nerdtool.html), and others, that let their users run system commands and have the output displayed on the desktop. Notably, these small programs avoid the need to use cli-programs like `ps`, `top`, `netstat`, etc., who's output typically needs to be manipulated with tools like `awk`, `grep`, etc. Conveniently, most of the programs provided here have their output formatted as [JSON](https://www.json.org/json-en.html).
 
+NB The [Free Pascal and Lazarus Wiki](https://wiki.freepascal.org/Accessing_macOS_System_Information) holds useful information for gathering system information through the `sysctl` interface used by Unix and Unix-like operating systems.
+
 ## Usage
 
 Each sourcefile has as a preamble with a compile command. For example, `battery_mac.c` shows the following:
