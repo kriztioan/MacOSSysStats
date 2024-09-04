@@ -37,7 +37,7 @@ struct sample {
 char *hr(char *buf, size_t size, float bytes) {
   int i = 0;
   static constexpr char const *units[] = {"B", "kiB", "MiB", "GiB"};
-  while (bytes > 1024.0f) {
+  while (bytes >= 1024.0f) {
     bytes /= 1024.0f;
     ++i;
   }
