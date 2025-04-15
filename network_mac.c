@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  char *records = (char *)malloc(n),
+  char *records = (char *)malloc(n * sizeof(struct if_msghdr2)),
        *record;
 
   if (-1 == sysctl(mib,

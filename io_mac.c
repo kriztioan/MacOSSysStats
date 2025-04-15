@@ -16,6 +16,11 @@
 #include <IOKit/IOKitLib.h>
 #include <IOKit/storage/IOBlockStorageDriver.h>
 #include <IOKit/storage/IOMedia.h>
+#include <mach/mach.h>
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 120000) // before Monterey
+#define kIOMainPortDefault kIOMasterPortDefault
+#endif
 
 int main() {
 
@@ -39,11 +44,7 @@ int main() {
 
   io_registry_entry_t parent, drive;
 
-  // CFStringRef sValue;
-
   CFNumberRef nValue;
-
-  // const char *name;
 
   long io_read, io_write, io_read_total = 0L, io_write_total = 0L;
 
@@ -63,29 +64,6 @@ int main() {
       CFMutableDictionaryRef properties;
 
       CFDictionaryRef stats;
-
-      /*status = IORegistryEntryCreateCFProperties(drive,
-                                                 (CFMutableDictionaryRef *)
-      &properties, kCFAllocatorDefault, kNilOptions);
-
-      if (status != KERN_SUCCESS) {
-
-        IOObjectRelease(parent);
-
-        IOObjectRelease(drive);
-
-        CFRelease(properties);
-
-      }
-
-      sValue = (CFStringRef) CFDictionaryGetValue(properties,
-      CFSTR(kIOBSDNameKey));
-
-      name = CFStringGetCStringPtr(sValue, CFStringGetSystemEncoding());
-
-      printf("%s ", name);
-
-      CFRelease(properties); */
 
       status = IORegistryEntryCreateCFProperties(
           parent, (CFMutableDictionaryRef *)&properties, kCFAllocatorDefault,
