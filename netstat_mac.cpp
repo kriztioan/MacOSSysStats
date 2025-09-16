@@ -5,11 +5,13 @@
  *  @date   2021-07-17
  *  @note   BSD-3 licensed
  *
+ *  API https://newosxbook.com/bonus/vol1ch16.html
+ *
  *  Compile with:
  *    clang++ -O3 -std=c++17 -stdlib=libc++ -Weverything -Wno-c++98-compat
  *    -Wno-poison-system-directories -Wno-c++98-compat-pedantic netstat_mac.cpp
- *    -o netstat -framework CoreFoundation -framework NetworkStatistics -framework
- *    CoreFoundation -F /System/Library/PrivateFrameworks
+ *    -o netstat -framework CoreFoundation -framework NetworkStatistics
+ *-framework CoreFoundation -F /System/Library/PrivateFrameworks
  *
  ***********************************************/
 
@@ -17,10 +19,10 @@ extern "C" {
 #include "NStatManager.h"
 }
 #include <ctime>
-//#include <google/dense_hash_map>
+// #include <google/dense_hash_map>
 #include <unordered_map>
 #include <vector>
-//#include <memory_resource>
+// #include <memory_resource>
 
 char *hr(char *buf, size_t size, float bytes);
 
@@ -41,8 +43,8 @@ char *hr(char *buf, size_t size, float bytes) {
     bytes /= 1024.0f;
     ++i;
   }
-  snprintf(buf, size, "%*.*f %*s", i > 0 ? 5 + i : 4 + i, i,
-           static_cast<double>(bytes), i > 0 ? 6 - i : 7 - i, units[i]);
+  snprintf(buf, size, "%*.*f %*s", i > 0 ? 5 + i : 4, i,
+           static_cast<double>(bytes), i > 0 ? 3 : 1, units[i]);
   return (buf);
 }
 
@@ -65,12 +67,11 @@ int main(int argc, char *argv[]) {
   // std::size(pool)};
   // std::pmr::unordered_map<pid_t, struct ninfo> info {&rsrc};
 
-   __block std::unordered_map<pid_t, struct ninfo> info;
-   info.reserve(128);
+  __block std::unordered_map<pid_t, struct ninfo> info;
+  info.reserve(128);
 
   //__block google::dense_hash_map<pid_t, struct ninfo> info;
-  //info.set_empty_key(-1);
-
+  // info.set_empty_key(-1);
 
   dispatch_queue_t queue = dispatch_queue_create(
       "com.christiaanboersma.netstat", DISPATCH_QUEUE_SERIAL);
@@ -162,5 +163,6 @@ int main(int argc, char *argv[]) {
     });
   });
   dispatch_semaphore_wait(queue_s, DISPATCH_TIME_FOREVER);
+  dispatch_release(queue_s);
   return 0;
 }

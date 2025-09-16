@@ -22,7 +22,9 @@
 #define kIOMainPortDefault kIOMasterPortDefault
 #endif
 
-int main() {
+int main(void) {
+
+  long io_read, io_write, io_read_total = 0L, io_write_total = 0L;
 
   mach_port_t master_port = kIOMainPortDefault;
 
@@ -30,33 +32,29 @@ int main() {
 
   CFDictionaryAddValue(match, CFSTR(kIOMediaWholeKey), kCFBooleanTrue);
 
-  io_iterator_t drive_list;
+  io_iterator_t media_list;
 
   kern_return_t status =
-      IOServiceGetMatchingServices(master_port, match, &drive_list);
+      IOServiceGetMatchingServices(master_port, match, &media_list);
 
   if (status != KERN_SUCCESS) {
 
-    printf("0.0 0.0");
+    printf("%ld %ld", io_read_total, io_write_total);
 
     exit(1);
   }
 
-  io_registry_entry_t parent, drive;
+  io_registry_entry_t parent, media;
 
   CFNumberRef nValue;
 
-  long io_read, io_write, io_read_total = 0L, io_write_total = 0L;
+  while ((media = IOIteratorNext(media_list))) {
 
-  while ((drive = IOIteratorNext(drive_list))) {
-
-    status = IORegistryEntryGetParentEntry(drive, kIOServicePlane, &parent);
+    status = IORegistryEntryGetParentEntry(media, kIOServicePlane, &parent);
 
     if (status != KERN_SUCCESS) {
 
-      printf("0.0 0.0");
-
-      exit(2);
+      continue;
     }
 
     if (IOObjectConformsTo(parent, "IOBlockStorageDriver")) {
@@ -70,10 +68,9 @@ int main() {
           kNilOptions);
 
       if (status != KERN_SUCCESS) {
-
         IOObjectRelease(parent);
 
-        IOObjectRelease(drive);
+        IOObjectRelease(media);
 
         CFRelease(properties);
 
@@ -84,10 +81,9 @@ int main() {
           properties, CFSTR(kIOBlockStorageDriverStatisticsKey));
 
       if (!stats) {
-
         IOObjectRelease(parent);
 
-        IOObjectRelease(drive);
+        IOObjectRelease(media);
 
         CFRelease(properties);
 
@@ -110,13 +106,13 @@ int main() {
 
       IOObjectRelease(parent);
 
-      IOObjectRelease(drive);
+      IOObjectRelease(media);
 
       CFRelease(properties);
     }
   }
 
-  IOObjectRelease(drive_list);
+  IOObjectRelease(media_list);
 
   printf("%ld %ld\n", io_read_total, io_write_total);
 

@@ -1,6 +1,6 @@
 /**
  *  @file   top_mac.c
- *  @brief  SMC Temperature/Fan Speed
+ *  @brief  Top for CPU Usage
  *  @author KrizTioaN (christiaanboersma@hotmail.com)
  *  @date   2021-07-17
  *  @note   BSD-3 licensed
@@ -26,9 +26,11 @@ struct pinfo {
 };
 
 static int cmp(const void *a, const void *b) {
-  return (((const struct pinfo *)b)->cputime > ((const struct pinfo *)a)->cputime)
+  return (((const struct pinfo *)b)->cputime >
+          ((const struct pinfo *)a)->cputime)
              ? 1
-             : ((((const struct pinfo *)b)->cputime < ((const struct pinfo *)a)->cputime)
+             : ((((const struct pinfo *)b)->cputime <
+                 ((const struct pinfo *)a)->cputime)
                     ? -1
                     : 0);
 }
@@ -82,13 +84,14 @@ int main(int argc, char *argv[]) {
 
   printf("{\"top\":[");
 
-    unsigned int i = 0;
-    for (; i < (n-1); i++)
-      printf("{\"program\":\"%s\",\"percentage\":%0.1f},", info[i].path,
-             (double)(100.0f * (float)info[i].cputime / (float)timer));
+  unsigned int i = 0;
+  for (; i < (n - 1); i++)
+    printf("{\"program\":\"%s\",\"percentage\":%0.1f},", info[i].path,
+           (double)(100.0f * (float)info[i].cputime / (float)timer));
 
-    printf("{\"program\":\"%s\",\"percentage\":%0.1f}], \"error\":0}",
-           info[i].path, (double)(100.0f * (float)info[i].cputime / (float)timer));
+  printf("{\"program\":\"%s\",\"percentage\":%0.1f}], \"error\":0}",
+         info[i].path,
+         (double)(100.0f * (float)info[i].cputime / (float)timer));
 
   free(info);
 

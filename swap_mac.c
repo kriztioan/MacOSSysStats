@@ -15,7 +15,9 @@
 
 int main(void) {
 
-  struct xsw_usage xsw_usage_s;
+  int error = 0;
+
+  struct xsw_usage xsw_usage_s = {0};
 
   int mib[2] = {CTL_VM, VM_SWAPUSAGE};
 
@@ -23,11 +25,11 @@ int main(void) {
 
   if (-1 == sysctl(mib, sizeof(mib) / sizeof(int), &xsw_usage_s, &n, NULL, 0)) {
 
-    return 1;
+    error = 1;
   }
 
-  printf("{\"used\":%llu, \"total\":%llu, \"error\":0}", xsw_usage_s.xsu_used,
-         xsw_usage_s.xsu_total);
+  printf("{\"used\":%llu, \"total\":%llu, \"error\":%d}", xsw_usage_s.xsu_used,
+         xsw_usage_s.xsu_total, error);
 
   return 0;
 }
