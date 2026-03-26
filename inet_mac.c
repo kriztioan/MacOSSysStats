@@ -22,7 +22,7 @@
 #include <string.h>
 #include <unistd.h>
 
-//#include <growl.h>
+// #include <growl.h>
 #include "notify.h"
 
 #define ICON "/System/Library/CoreServices/Applications/Network Utility.app"
@@ -314,8 +314,8 @@ int proclist_fill(proclist *plist) {
     proc_pidinfo(plist->proc[plist->nproc].pid, PROC_PIDT_SHORTBSDINFO, 0,
                  &bsdinfo, PROC_PIDT_SHORTBSDINFO_SIZE);
 
-    nfd_bytes = proc_pidinfo(plist->proc[plist->nproc].pid, PROC_PIDLISTFDS, 0, NULL,
-                       0);
+    nfd_bytes = proc_pidinfo(plist->proc[plist->nproc].pid, PROC_PIDLISTFDS, 0,
+                             NULL, 0);
 
     nfd = nfd_bytes / sizeof(struct proc_fdinfo);
 
@@ -324,8 +324,8 @@ int proclist_fill(proclist *plist) {
     if (fdinfo == NULL)
       continue;
 
-    proc_pidinfo(plist->proc[plist->nproc].pid, PROC_PIDLISTFDS, 0,
-                       fdinfo, nfd_bytes);
+    proc_pidinfo(plist->proc[plist->nproc].pid, PROC_PIDLISTFDS, 0, fdinfo,
+                 nfd_bytes);
 
     for (j = 0; j < nfd; j++) {
 
@@ -526,9 +526,10 @@ int main(int argc, char *argv[], char **envp) {
         notify(hdr, plist3.proc[i].user, body, 0);
 
         // snprintf(hdr, HDR_SIZE, "%s (%zu)\n%s", plist3.proc[i].name,
-        // plist3.proc[i].ninet, plist3.proc[i].user); growl("localhost",
-        // "Network Utility", "nu-message", hdr, body, ICON, NULL, NULL);
-        //printf("%s\n%s\n\n", hdr, body);
+        //          plist3.proc[i].ninet, plist3.proc[i].user);
+        // growl("localhost", "Network Utility", "nu-message", hdr, body, ICON,
+        //       NULL, NULL);
+        // printf("%s\n%s\n\n", hdr, body);
       }
     }
 
