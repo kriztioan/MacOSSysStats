@@ -10,12 +10,12 @@
  *
  ***********************************************/
 
+#include <mach/mach.h>
+#include <mach/mach_host.h>
+#include <mach/processor_info.h>
+#include <stdio.h>
 #include <sys/sysctl.h>
 #include <sys/types.h>
-#include <mach/mach.h>
-#include <mach/processor_info.h>
-#include <mach/mach_host.h>
-#include <stdio.h>
 #include <unistd.h>
 
 int main() {
@@ -26,19 +26,15 @@ int main() {
 
   natural_t ncpu = 0U;
 
-  kern_return_t err = host_processor_info(mach_host_self(),
-					  PROCESSOR_CPU_LOAD_INFO,
-					  &ncpu,
-					  (processor_info_array_t *) &cpu_info,
-					  &n_cpu_info);
+  kern_return_t err =
+      host_processor_info(mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &ncpu,
+                          (processor_info_array_t *)&cpu_info, &n_cpu_info);
 
-  if(KERN_SUCCESS == err) {
+  if (KERN_SUCCESS == err) {
 
-    long used,
-         usage = 0L,
-         total = 0L;
+    long used, usage = 0L, total = 0L;
 
-    while(ncpu--) {
+    while (ncpu--) {
 
       used = cpu_info[ncpu].cpu_ticks[CPU_STATE_USER] +
              cpu_info[ncpu].cpu_ticks[CPU_STATE_SYSTEM] +
@@ -46,8 +42,14 @@ int main() {
 
       usage += used;
 
-      total += used +
-	          cpu_info[ncpu].cpu_ticks[CPU_STATE_IDLE];
+      total += used + cpu_info[ncpu].cpu_ticks[CPU_STATE_IDLE];
+    }
+
+    err = vm_deallocate(mach_task_self(), (vm_address_t)cpu_info, n_cpu_info);
+
+    if (err != KERN_SUCCESS) {
+
+      return -1;
     }
 
     printf("%ld %ld ", usage, total);
