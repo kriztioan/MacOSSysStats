@@ -6,10 +6,14 @@
  *  @note   BSD-3 licensed
  *
  *  Compile with:
- *    clang -O3 -Weverything -Wno-poison-system-directories io_mac.c
- *    -o io -framework IOKit -framework Foundation
+ *    clang -O3 -Weverything -Wno-declaration-after-statement
+ *    -Wno-poison-system-directories io_mac.c -o io -framework
+ *    IOKit -framework Foundation
  *
  ***********************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOBSD.h>
@@ -24,9 +28,7 @@
 
 int main(void) {
 
-  long io_read, io_write, io_read_total = 0L, io_write_total = 0L;
-
-  mach_port_t master_port = kIOMainPortDefault;
+  uint64_t io_read, io_write, io_read_total = 0L, io_write_total = 0L;
 
   CFMutableDictionaryRef match = IOServiceMatching("IOMedia");
 
@@ -35,11 +37,11 @@ int main(void) {
   io_iterator_t media_list;
 
   kern_return_t status =
-      IOServiceGetMatchingServices(master_port, match, &media_list);
+      IOServiceGetMatchingServices(kIOMainPortDefault, match, &media_list);
 
   if (status != KERN_SUCCESS) {
 
-    printf("%ld %ld", io_read_total, io_write_total);
+    printf("%llu %llu\n", io_read_total, io_write_total);
 
     exit(1);
   }
@@ -53,39 +55,25 @@ int main(void) {
     status = IORegistryEntryGetParentEntry(media, kIOServicePlane, &parent);
 
     if (status != KERN_SUCCESS) {
+      IOObjectRelease(parent);
+
+      IOObjectRelease(media);
 
       continue;
     }
 
     if (IOObjectConformsTo(parent, "IOBlockStorageDriver")) {
 
-      CFMutableDictionaryRef properties;
-
       CFDictionaryRef stats;
 
-      status = IORegistryEntryCreateCFProperties(
-          parent, (CFMutableDictionaryRef *)&properties, kCFAllocatorDefault,
-          kNilOptions);
-
-      if (status != KERN_SUCCESS) {
-        IOObjectRelease(parent);
-
-        IOObjectRelease(media);
-
-        CFRelease(properties);
-
-        continue;
-      }
-
-      stats = (CFDictionaryRef)CFDictionaryGetValue(
-          properties, CFSTR(kIOBlockStorageDriverStatisticsKey));
+      stats = (CFDictionaryRef)IORegistryEntryCreateCFProperty(
+          parent, CFSTR(kIOBlockStorageDriverStatisticsKey),
+          kCFAllocatorDefault, kNilOptions);
 
       if (!stats) {
         IOObjectRelease(parent);
 
         IOObjectRelease(media);
-
-        CFRelease(properties);
 
         continue;
       }
@@ -103,18 +91,16 @@ int main(void) {
       CFNumberGetValue(nValue, kCFNumberSInt64Type, &io_write);
 
       io_write_total += io_write;
-
-      IOObjectRelease(parent);
-
-      IOObjectRelease(media);
-
-      CFRelease(properties);
     }
+
+    IOObjectRelease(parent);
+
+    IOObjectRelease(media);
   }
 
   IOObjectRelease(media_list);
 
-  printf("%ld %ld\n", io_read_total, io_write_total);
+  printf("%llu %llu\n", io_read_total, io_write_total);
 
   return 0;
 }
